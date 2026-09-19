@@ -1,0 +1,20 @@
+# GraSP scratch overlay: inserts the demo plugin into a bundled profile.
+# Relative plugin names in inserted rows resolve beside this patch file.
+#
+# Run it:
+#   pnpm dsh web --patch ./scratch-plugin/grasp/overlay.yml
+#   node --inspect=9229 --import tsx/esm apps/cli/src/bin.ts web \
+#     --patch ./scratch-plugin/grasp/overlay.yml --no-open
+#
+# Ask the model to call `grasp` with action retrieve|plan|run, the task string,
+# and scenario happy|missing-precondition|verify-failure. The happy scenario
+# compiles and runs the workspace-report chain; the other two drive the repair
+# and post-verification paths, which currently report repaired=false.
+- insert:
+    - id: grasp
+      name: './index.ts'
+      config:
+        enabled: true
+        topK: 8
+        maxHops: 2
+        maxAttempts: 3
