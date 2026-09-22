@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="ts-learn-prefix" content="{{PREFIX}}">
+  <title>ts-learn · TypeScript 练习场</title>
+  <link rel="stylesheet" href="{{PREFIX}}/app.css">
+  <script src="{{PREFIX}}/app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">TS</span>
+        <div class="brand-text">
+          <strong>ts-learn</strong>
+          <span>Agent 开发 · TypeScript 练习场</span>
+        </div>
+      </div>
+      <div class="badges" id="badges"></div>
+      <div class="topbar-actions">
+        <label class="select-wrap">
+          <span class="select-label">出题方向</span>
+          <select id="theme-select" aria-label="选择出题方向"></select>
+        </label>
+        <button type="button" class="btn btn-soft" id="btn-next">换一题</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel panel-problem" aria-label="题目">
+        <div class="panel-body" id="problem">
+          <p class="muted">正在载入题目…</p>
+        </div>
+      </section>
+
+      <section class="panel panel-workspace" aria-label="作答">
+        <div class="toolbar">
+          <span class="file-chip"><span class="file-dot"></span>submission.ts</span>
+          <span class="file-hint">Tab 缩进 · Ctrl+Enter 自测 · Ctrl+Shift+Enter 提交</span>
+          <div class="toolbar-actions">
+            <button type="button" class="btn btn-soft" id="btn-hint">要提示</button>
+            <button type="button" class="btn btn-soft" id="btn-run">运行自测</button>
+            <button type="button" class="btn btn-primary" id="btn-submit">提交</button>
+          </div>
+        </div>
+
+        <div class="editor" id="editor">
+          <div class="gutter" aria-hidden="true"><div class="gutter-inner" id="gutter"></div></div>
+          <div class="code-area">
+            <pre class="highlight" id="highlight" aria-hidden="true"><code id="highlight-code"></code></pre>
+            <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off"
+                      autocorrect="off" wrap="off" aria-label="TypeScript 代码编辑器"></textarea>
+          </div>
+        </div>
+
+        <div class="hint-strip" id="hint-strip" hidden></div>
+
+        <div class="panel-body results" id="results">
+          <p class="muted">写完后点「运行自测」用样例用例检查，点「提交」由会话里的 agent 判题并点评。</p>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" hidden></div>
+  </div>
+</body>
+</html>

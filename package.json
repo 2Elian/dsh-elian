@@ -1,8 +1,8 @@
-﻿{
+{
   "name": "dsh-elian",
   "version": "0.1.0",
   "private": true,
-  "description": "DeepSeek Harness plugins: in-session keyword search (session-delta-search) and a user-turn outline (session-list).",
+  "description": "DeepSeek Harness plugins: in-session keyword search (session-delta-search), a user-turn outline (session-list), and TypeScript practice rounds judged by the session's own agent (ts-learn).",
   "license": "MIT",
   "type": "module",
   "engines": {
@@ -16,7 +16,10 @@
     "smoke": "node scripts/smoke-plugins.mjs",
     "test": "pnpm --filter @2elian/dsh-session-delta-search test",
     "typecheck": "pnpm -r run typecheck",
-    "check": "pnpm run build && pnpm run test && pnpm run typecheck && pnpm run validate && pnpm run smoke"
+    "verify:ts-learn": "node scripts/verify-ts-learn.mjs && node scripts/verify-ts-learn-problems.mjs && node scripts/verify-ts-learn-http.mjs && node scripts/verify-ts-learn-page.mjs",
+    "check:ts-learn-bank": "node scripts/check-ts-learn-bank.mjs",
+    "preview:ts-learn": "node scripts/preview-ts-learn.mjs",
+    "check": "pnpm run build && pnpm run test && pnpm run typecheck && pnpm run validate && pnpm run smoke && pnpm run verify:ts-learn"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",

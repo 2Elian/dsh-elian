@@ -1,0 +1,47 @@
+{
+  "name": "@2elian/dsh-ts-learn",
+  "version": "0.1.0",
+  "description": "TypeScript practice for DeepSeek Harness: /ts-learn hands out a random medium single-file TS exercise framed in agent development with a LeetCode-style algorithmic core, serves an in-browser editor with sample tests and hints, and routes submissions to the session's own agent for a sandboxed re-run and review.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2Elian/dsh-elian.git",
+    "directory": "plugins/ts-learn"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "files": [
+    "index.js",
+    "src",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "typescript",
+    "learn",
+    "leetcode",
+    "agent"
+  ],
+  "scripts": {
+    "verify": "node scripts/verify-ts-learn.mjs",
+    "verify:problems": "node scripts/verify-ts-learn-problems.mjs",
+    "verify:http": "node scripts/verify-ts-learn-http.mjs",
+    "preview": "node scripts/preview-ts-learn.mjs"
+  }
+}

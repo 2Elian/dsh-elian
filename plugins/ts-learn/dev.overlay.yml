@@ -1,0 +1,26 @@
+# Local development overlay: loads this checkout's plugin without installing it.
+#
+#   pnpm dsh --profile web --patch file:///E:/Project/dsh-elian/plugins/ts-learn/dev.overlay.yml
+#
+# The row names the host half by ABSOLUTE file URL rather than './index.js',
+# matching the other plugins in this repository. The host Loader resolves a
+# relative name beside this patch file, but an out-of-tree relative name can
+# fail the client-module scanner's second resolution pass and the row is then
+# classified as "not a client row" — silently, with no error. An absolute URL
+# resolves the same way for both passes.
+#
+# There is no build step for this plugin: `index.js` and everything under
+# `src/` are shipped source.
+#
+# Launcher flags (--profile, --patch) must stay BEFORE the first app flag
+# (--port, --open): the launcher hands everything from the first token it does
+# not recognize to the booted app. See docs/install.md.
+- insert:
+    - id: ts-learn
+      name: 'file:///E:/Project/dsh-elian/plugins/ts-learn/index.js'
+      config:
+        openBrowser: true
+        promptSection: true
+        autoReview: true
+        caseTimeoutMs: 4000
+        runTimeoutMs: 15000

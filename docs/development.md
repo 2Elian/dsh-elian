@@ -10,35 +10,51 @@ dsh-elian/
 │       └── tests/                   vitest 单测
 ├── plugins/
 │   ├── session-delta-search/        @2elian/dsh-client-ui-session-delta-search
-│   └── session-list/                @2elian/dsh-client-ui-session-list
-│       ├── index.js                 host 半（空 apply）
-│       ├── client.js                构建产物，客户端 bundle
-│       ├── src/client/              浏览器半：座位注册、组件、文案、样式
-│       ├── cordis.patch.yml         bundle patch（持久安装用）
-│       ├── dev.overlay.yml          本地开发 overlay
-│       └── build.mjs                三行，调用 scripts/client-bundle.mjs
+│   ├── session-list/                @2elian/dsh-client-ui-session-list
+│   │   ├── index.js                 host 半（空 apply）
+│   │   ├── client.js                构建产物，客户端 bundle
+│   │   ├── src/client/              浏览器半：座位注册、组件、文案、样式
+│   │   ├── cordis.patch.yml         bundle patch（持久安装用）
+│   │   ├── dev.overlay.yml          本地开发 overlay
+│   │   └── build.mjs                三行，调用 scripts/client-bundle.mjs
+│   └── ts-learn/                    @2elian/dsh-ts-learn（host 插件）
+│       ├── index.js                 host 半 = 插件全部入口，纯 JavaScript
+│       ├── src/                     题目库、判题执行、HTTP 接口、答题页资源
+│       ├── cordis.patch.yml         bundle patch
+│       └── dev.overlay.yml          本地开发 overlay（无构建步骤）
 ├── scripts/
 │   ├── client-bundle.mjs            esbuild → __ModuleLoader__.load 格式
-│   ├── validate-plugins.mjs         用 DSH 自己的 parseDshClient 校验清单
-│   └── smoke-plugins.mjs            真实执行 bundle 工厂跑 apply()
+│   ├── validate-plugins.mjs         客户端插件用 DSH 的 parseDshClient；host 插件校验 patch + host 入口
+│   ├── smoke-plugins.mjs            真实执行 bundle 工厂跑 apply()
+│   ├── verify-ts-learn.mjs          ts-learn 静态 + 编辑器行为
+│   ├── verify-ts-learn-problems.mjs ts-learn 题库真实执行
+│   ├── verify-ts-learn-http.mjs     ts-learn 端到端（真实 Cordis + 真实 webserver）
+│   ├── verify-ts-learn-page.mjs     ts-learn 真实浏览器页面验证（无浏览器时 SKIP）
+│   ├── check-ts-learn-bank.mjs      单文件/整库题目检查
+│   └── preview-ts-learn.mjs         独立预览服务器
 └── docs/
 ```
 
 ## 分工约定
 
 - **`packages/`**：算法与纯函数。不 import 任何 `@deepseek-ai/*`，不 import React，可以在 Node 下单测。
-- **`plugins/`**：DSH 集成。一个插件负责声明 `dsh.client`、注册到座位、提供文案与样式、打包客户端 bundle。
+- **`plugins/<客户端插件>/`**：DSH 集成。声明 `dsh.client`、注册到座位、提供文案与样式、打包客户端 bundle。
+- **`plugins/<host 插件>/`**：只注册命令 / HTTP 路由 / 工具 / 提示段。声明 `dsh.bundle.patch`（**不写** `dsh.client`），没有 `build.mjs`，`index.js` + `src/` 就是交付物。`ts-learn` 是这个形态的样板。
 - 多个插件复用同一段逻辑时，抽到 `packages/` 下，让插件按包名依赖它——它会被 esbuild 内联进各自的 bundle，运行时不需要装。
+- host 插件**不要**用 `lib/` 放源码：`.gitignore` 忽略了 `lib/`（那是客户端插件的构建产物目录），放了会提交不进 git。
 
 ## 命令
 
 ```sh
 pnpm install
-pnpm run build       # 核心库 tsc + 两个插件的 client.js
+pnpm run build       # 核心库 tsc + 两个客户端插件的 client.js（host 插件不参与）
 pnpm run test        # 核心库单测
 pnpm run typecheck   # 核心库 + 插件
-pnpm run validate    # 清单契约校验
+pnpm run validate    # 清单契约校验（客户端分支 + host 分支）
 pnpm run smoke       # bundle 工厂 + apply() 冒烟
+pnpm run verify:ts-learn        # ts-learn：静态 + 题库 + 端到端
+pnpm run check:ts-learn-bank [文件]   # 只查题目契约与行为
+pnpm run preview:ts-learn       # 起独立预览服务器
 pnpm run check       # 以上全部
 ```
 
@@ -51,6 +67,13 @@ cd plugins/session-delta-search && node build.mjs --watch
 ```
 
 运行中的 `dsh web` 会轮询 `client.js` 的 mtime，产物一变就热替换客户端插件，不用重启服务。改了 host 半（`index.js`）则需要重启。
+
+**host 插件（`ts-learn`）没有构建产物**，改完 `index.js` 或 `src/` 直接重启 `dsh web` 即可。开发时用 overlay 加载源码最省事：
+
+```powershell
+cd E:\Project\deepseek-harness
+pnpm dsh --profile web --patch E:/Project/dsh-elian/plugins/ts-learn/dev.overlay.yml
+```
 
 ## 构建产物格式
 
@@ -81,10 +104,13 @@ window.__ModuleLoader__.load({
 | --- | --- | --- | --- |
 | 纯逻辑 | `pnpm run test` | 抽取正确（含推理）、查询语义、锚点推导、翻页落点 | 与宿主的集成 |
 | 类型 | `pnpm run typecheck` | 内部一致 | 宿主接口没变 |
-| 清单契约 | `pnpm run validate` | `dsh.client` 合法、bundle 存在、注册 id 正确、`require()` 都在模块表内、**host 半能被 import 且导出 `apply()`** | 能被扫描到 |
+| 清单契约 | `pnpm run validate` | `dsh.client` 合法、bundle 存在、注册 id 正确、`require()` 都在模块表内、**host 半能被 import 且导出 `apply()`**；host 插件则校验 bundle patch、`files` 与 host 入口 | 能被扫描到 |
 | 激活 | `pnpm run smoke` | bundle 工厂可执行、`apply()` 注册到正确座位、暴露正确 hooks、能干净卸载 | **用户看到什么** |
+| ts-learn | `pnpm run verify:ts-learn` | 包清单与 patch/overlay、配置校验、题库契约、下发投影、回合状态、消息构造、**`app.js` 在 `node:vm` 里的高亮与缩进行为**（DOM 桩只认页面真实存在的 id，找不到就返回 `null`）、20 道题 189 个用例的真实执行、真实 Cordis + 真实 webserver 上的完整 HTTP 流程（含提交转交与工具回传）、**真实浏览器里的页面渲染与自测/提交/提示/换题** | 真实 DSH 会话里 agent 的点评质量 |
 
 **最后一格必须靠一次真实的 `dsh web --patch ...` 目视确认**，自动化测试替代不了。
+
+`verify:ts-learn` 的三段脚本默认去 `E:/Project/deepseek-harness` 找 DSH 检出（第二段只用 Node 自身的类型剥离，第三段还要用到检出里已构建的 `@deepseek-ai/dsh-host-webserver`）。第一段不需要网络、不需要 API key。
 
 ### 为什么 host 半也要 import 检查
 

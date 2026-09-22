@@ -1,0 +1,23 @@
+# Bundle patch for @2elian/dsh-ts-learn.
+# Selecting this bundle inserts one profile row. `plugin_manager`
+# (action: install_bundle) reads this file through `dsh.bundle.patch`.
+#
+# This is a HOST plugin: it registers a slash command, an HTTP route family on
+# the host's own web server, and a tool. It has no browser half and no build
+# step, so selecting it is the whole installation.
+#
+# Every value below is a deployment choice and may be overridden by a later
+# patch layer. Full table: plugins/ts-learn/README.md#配置
+- insert:
+    - id: ts-learn
+      name: '@2elian/dsh-ts-learn'
+      config:
+        # Open the challenge page in the OS browser when the command runs.
+        openBrowser: true
+        # Contribute a short beginner-review prompt section to every agent.
+        promptSection: true
+        # Transfer a submission to the session's agent for review.
+        autoReview: true
+        # Per-case and whole-run ceilings for the local pre-check runner.
+        caseTimeoutMs: 4000
+        runTimeoutMs: 15000

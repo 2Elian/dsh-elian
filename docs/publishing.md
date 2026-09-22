@@ -28,9 +28,10 @@ pnpm --filter @2elian/dsh-client-ui-session-delta-search publish --dry-run
 pnpm --filter @2elian/dsh-session-delta-search publish --access public
 pnpm --filter @2elian/dsh-client-ui-session-delta-search publish --access public
 pnpm --filter @2elian/dsh-client-ui-session-list publish --access public
+pnpm --filter @2elian/dsh-ts-learn publish --access public
 ```
 
-发布顺序：**先核心库，再插件**。
+发布顺序：**先核心库，再插件**。`ts-learn` 不依赖核心库，顺序随意。
 
 ### 关于版本与依赖
 
@@ -39,7 +40,9 @@ pnpm --filter @2elian/dsh-client-ui-session-list publish --access public
 
 ### 发布内容
 
-每个插件的 `files` 白名单只包含 `index.js`、`client.js`、`cordis.patch.yml`、`README.md`。`prepublishOnly` 会重新产出 `client.js`，所以即使本地没构建也能发出完整包。
+两个客户端插件的 `files` 白名单只包含 `index.js`、`client.js`、`cordis.patch.yml`、`README.md`。`prepublishOnly` 会重新产出 `client.js`，所以即使本地没构建也能发出完整包。
+
+`ts-learn` 是 host 插件，`files` 是 `index.js`、`src`、`cordis.patch.yml`、`README.md`，没有构建步骤也就没有 `prepublishOnly`——发出去的就是仓库里的源码。发布前确认 `src/` 整个目录都在白名单里，漏了它装出来的包会在 import 时直接失败。
 
 ### 发布后别人怎么装
 
@@ -73,11 +76,12 @@ dsh plugin --profile web add https://github.com/2Elian/dsh-elian/releases/downlo
 
 ## 给使用者的最短说明
 
-如果只是想把这两个插件贴给别人用，把下面这段给他们就够了：
+如果只是想把这几个插件贴给别人用，把下面这段给他们就够了：
 
 ```
 在 dsh Web 的 Plugins 页面里安装：
   @2elian/dsh-client-ui-session-delta-search
   @2elian/dsh-client-ui-session-list
-装完重启 dsh web。
+  @2elian/dsh-ts-learn
+装完重启 dsh web。ts-learn 装好后在对话里发 /ts-learn。
 ```

@@ -29,6 +29,55 @@ const ok = (condition, message) => {
   if (!condition) failures += 1
 }
 
+/**
+ * Validate a host-only plugin: one with a `dsh.bundle.patch` but no
+ * `dsh.client`. There is no browser half to scan, so the contract is the one
+ * DSH itself reads at install and boot time — the patch it ships, the `files`
+ * list that must carry it, and the host entry the Loader imports.
+ *
+ * @param dir - the plugin directory.
+ * @param manifest - its parsed package.json.
+ * @param record - the assertion sink.
+ */
+async function validateHostPlugin(dir, manifest, record) {
+  const patchRelative = manifest.dsh?.bundle?.patch
+  record(typeof patchRelative === 'string', 'declares dsh.bundle.patch')
+  record(manifest.files?.includes('cordis.patch.yml') === true, 'files ships cordis.patch.yml')
+
+  if (typeof patchRelative === 'string') {
+    try {
+      const patch = await readFile(join(dir, patchRelative), 'utf8')
+      record(patch.includes('insert:'), 'patch declares an insert list')
+      record(patch.includes(manifest.name), 'patch row names the plugin package')
+    } catch {
+      record(false, `${patchRelative} is missing`)
+    }
+  }
+
+  const entryRelative = manifest.exports?.['.']
+  record(typeof entryRelative === 'string', 'host entry declared')
+  if (typeof entryRelative !== 'string') return
+
+  const entryPath = join(dir, entryRelative)
+  try {
+    record((await stat(entryPath)).size > 0, 'host entry exists')
+  } catch {
+    record(false, `host entry ${entryRelative} is missing`)
+    return
+  }
+
+  // Existence is not enough: the Loader imports this file. A host-only row is
+  // a required entry, so a syntax error here fails the boot rather than
+  // silently disabling a client seat — but it should still be caught here.
+  try {
+    const host = await import(pathToFileURL(entryPath).href)
+    record(typeof host.apply === 'function', 'host entry imports and exports apply()')
+    record(host.name !== undefined, 'host entry exports its Loader diagnostic name')
+  } catch (error) {
+    record(false, `host entry failed to import: ${error instanceof Error ? error.message : String(error)}`)
+  }
+}
+
 const manifests = [
   ...globSync('plugins/*/package.json', { cwd: ROOT }),
 ].sort()
@@ -44,7 +93,13 @@ for (const relative of manifests) {
   console.log(`\n${manifest.name ?? relative}`)
 
   if (manifest.dsh === undefined) {
-    console.log('  --   not a client plugin; skipped')
+    console.log('  --   not a plugin; skipped')
+    continue
+  }
+
+  if (manifest.dsh.client === undefined) {
+    console.log('  --   host-only plugin (no browser half)')
+    await validateHostPlugin(dir, manifest, ok)
     continue
   }
 
