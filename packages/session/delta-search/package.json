@@ -1,0 +1,40 @@
+{
+  "name": "@2elian/dsh-session-delta-search",
+  "version": "0.1.0",
+  "description": "Framework-neutral in-session keyword search over a DeepSeek Harness event window: text extraction (including reasoning), matching, chat-row anchor derivation, and scroll landing.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2Elian/dsh-elian.git",
+    "directory": "packages/session/delta-search"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "README.md"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
+  }
+}

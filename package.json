@@ -1,0 +1,28 @@
+﻿{
+  "name": "dsh-elian",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DeepSeek Harness plugins: in-session keyword search (session-delta-search) and a user-turn outline (session-list).",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "scripts": {
+    "build": "pnpm run build:core && pnpm run build:plugins",
+    "build:core": "pnpm --filter @2elian/dsh-session-delta-search build",
+    "build:plugins": "pnpm --filter \"./plugins/session-*\" run build",
+    "validate": "node scripts/validate-plugins.mjs",
+    "smoke": "node scripts/smoke-plugins.mjs",
+    "test": "pnpm --filter @2elian/dsh-session-delta-search test",
+    "typecheck": "pnpm -r run typecheck",
+    "check": "pnpm run build && pnpm run test && pnpm run typecheck && pnpm run validate && pnpm run smoke"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "esbuild": "^0.25.0",
+    "react": "^18.3.1",
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
+  }
+}

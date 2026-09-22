@@ -1,0 +1,52 @@
+{
+  "name": "@2elian/dsh-client-ui-session-delta-search",
+  "version": "0.1.0",
+  "description": "In-session keyword search for the DeepSeek Harness Web client: finds text in prompts, answers, reasoning, tool calls and tool results, and jumps the transcript to the matching row.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2Elian/dsh-elian.git",
+    "directory": "plugins/session-delta-search"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    }
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "node build.mjs"
+  },
+  "devDependencies": {
+    "@2elian/dsh-session-delta-search": "workspace:^",
+    "@types/react": "^18.3.12",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.2"
+  }
+}

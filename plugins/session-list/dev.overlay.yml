@@ -1,0 +1,24 @@
+# Local development overlay: loads this checkout's plugin without installing it.
+#
+#   node build.mjs                       # emit client.js first (boot fails without it)
+#   pnpm dsh web --patch file:///E:/Project/dsh-elian/plugins/session-list/dev.overlay.yml
+#
+# The row names the host half by ABSOLUTE file URL rather than './index.js'.
+# The host Loader resolves a relative name beside this patch file, but the
+# client-module scanner re-resolves the row through the loader with the owning
+# tree's base URL; an out-of-tree relative name can fail that second resolution
+# and the package is then classified as "not a client row" — silently, with no
+# error. An absolute URL resolves the same way for both.
+#
+# Several overlays and app flags: keep every launcher flag (--profile, --patch)
+# BEFORE the first app flag (--port, --open). The launcher hands everything from
+# the first token it does not recognize to the booted app, so `web --port 3081
+# --patch …` reports `unknown option '--patch'`. For example:
+#
+#   pnpm dsh --profile web \
+#     --patch file:///E:/Project/dsh-elian/plugins/session-delta-search/dev.overlay.yml \
+#     --patch file:///E:/Project/dsh-elian/plugins/session-list/dev.overlay.yml \
+#     --port 3081
+- insert:
+    - id: session-list
+      name: 'file:///E:/Project/dsh-elian/plugins/session-list/index.js'

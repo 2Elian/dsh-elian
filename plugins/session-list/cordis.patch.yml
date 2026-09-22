@@ -1,0 +1,6 @@
+﻿# Bundle patch for @2elian/dsh-client-ui-session-list.
+# Selecting this bundle inserts one profile row. `plugin_manager`
+# (action: install_bundle) reads this file through `dsh.bundle.patch`.
+- insert:
+    - id: session-list
+      name: '@2elian/dsh-client-ui-session-list'

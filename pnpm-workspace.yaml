@@ -1,0 +1,9 @@
+packages:
+  - packages/*/*
+  - plugins/*
+  # plugins/grasp is orphaned: its `@tt-a1i/dsh-skill-grasp` dependency was
+  # deleted from packages/, so the link cannot resolve and `pnpm install`
+  # fails. Excluded (files kept on disk) until that plugin is removed.
+  - '!plugins/grasp'
+allowBuilds:
+  esbuild: set this to true or false
